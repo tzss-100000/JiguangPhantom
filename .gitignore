@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+.venv/
+venv/
+env/
+conda_env/
+
+# Local path configs
+configs/paths.local.yaml
+
+# Models
+models/*
+!models/.gitkeep
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+
+# Dataset
+data/*
+!data/.gitkeep
+
+# Training outputs
+outputs/*
+!outputs/.gitkeep
+checkpoints/
+checkpoint-*/
+
+# Logs
+logs/*
+!logs/.gitkeep
+wandb/
+runs/
+
+# Cache
+.cache/
+huggingface/
+tmp/
+
+# Windows / macOS
+Thumbs.db
+.DS_Store
+desktop.ini

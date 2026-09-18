@@ -1,0 +1,6 @@
+model_root: /path/to/models
+data_root: /path/to/datasets
+output_root: /path/to/outputs
+
+lingbot_model: /path/to/models/lingbot-vla-v2-6b
+robotwin_data: /path/to/datasets/robotwin/clean
