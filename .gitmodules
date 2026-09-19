@@ -1,0 +1,3 @@
+[submodule "third_party/lingbot-vla-v2"]
+	path = third_party/lingbot-vla-v2
+	url = https://github.com/Robbyant/lingbot-vla-v2.git
