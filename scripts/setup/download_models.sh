@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
-MODEL_ROOT="${MODEL_ROOT:-/project/${USER}/models}"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+MODEL_ROOT="${MODEL_ROOT:-${PROJECT_ROOT}/models}"
 
 mkdir -p "${MODEL_ROOT}"
 
@@ -14,7 +14,6 @@ echo "========================================"
 
 if ! command -v python >/dev/null 2>&1; then
     echo "[ERROR] Python is not available."
-    echo "Please activate the lingbotvla environment first."
     exit 1
 fi
 
@@ -22,62 +21,41 @@ python - <<'PY'
 try:
     import huggingface_hub
     print("huggingface_hub available")
-except ImportError:
-    raise SystemExit(
-        "huggingface_hub is missing. "
-        "Activate the lingbotvla environment first."
-    )
+except ImportError as exc:
+    raise SystemExit("huggingface_hub is required") from exc
 PY
 
-download_model () {
-    REPO_ID="$1"
-    LOCAL_DIR="$2"
+download_model() {
+    local repo_id="$1"
+    local local_dir="$2"
+    local revision="${3:-}"
 
-    if [ -d "${LOCAL_DIR}" ] && [ "$(ls -A "${LOCAL_DIR}" 2>/dev/null)" ]; then
-        echo "[SKIP] ${REPO_ID}"
-        echo "       ${LOCAL_DIR} already exists."
+    if [ -d "${local_dir}" ] && [ -n "$(ls -A "${local_dir}" 2>/dev/null)" ]; then
+        echo "[SKIP] ${repo_id}: ${local_dir} already exists."
         return
     fi
 
-    echo
-    echo "[DOWNLOAD] ${REPO_ID}"
-    echo "[TARGET]   ${LOCAL_DIR}"
-
-    python - <<PY
+    REPO_ID="${repo_id}" LOCAL_DIR="${local_dir}" REVISION="${revision}" python - <<'PY'
+import os
 from huggingface_hub import snapshot_download
 
-snapshot_download(
-    repo_id="${REPO_ID}",
-    local_dir="${LOCAL_DIR}",
-)
+kwargs = {
+    "repo_id": os.environ["REPO_ID"],
+    "local_dir": os.environ["LOCAL_DIR"],
+}
+revision = os.environ.get("REVISION")
+if revision:
+    kwargs["revision"] = revision
+
+snapshot_download(**kwargs)
 PY
 }
 
-download_model \
-    "robbyant/lingbot-vla-v2-6b" \
-    "${MODEL_ROOT}/lingbot-vla-v2-6b"
+download_model     "robbyant/lingbot-vla-v2-6b"     "${MODEL_ROOT}/lingbot-vla-v2-6b"
 
-download_model \
-    "Qwen/Qwen3-VL-4B-Instruct" \
-    "${MODEL_ROOT}/Qwen3-VL-4B-Instruct"
+download_model     "Qwen/Qwen3-VL-4B-Instruct"     "${MODEL_ROOT}/Qwen3-VL-4B-Instruct"
 
-download_model \
-    "Ruicheng/moge-2-vitb-normal" \
-    "${MODEL_ROOT}/moge-2-vitb-normal"
+download_model     "Ruicheng/moge-2-vitb-normal"     "${MODEL_ROOT}/moge-2-vitb-normal"
 
-echo
-echo "========================================"
-echo "Model download completed."
-echo "========================================"
-
-echo
-echo "Important:"
-echo "LingBot-VLA 2.0 also requires depth/video teacher"
-echo "files contained in the official LingBot weight repository."
-echo
-echo "Expected structure:"
-echo "${MODEL_ROOT}/lingbot-vla-v2-6b/depth/"
-echo "${MODEL_ROOT}/lingbot-vla-v2-6b/dino_video/"
-
-echo
-echo "[DONE]"
+echo "[SUCCESS] Model download completed."
+echo "LingBot base weights include the depth and DINO-video teacher files."
