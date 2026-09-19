@@ -1,21 +1,20 @@
-project_root: /home/<username>/JiguangPhantom
+project_root: /path/to/JiguangPhantom
+storage_root: /path/to/storage
 
-storage_root: /project/<username>
+model_root: /path/to/storage/models
+data_root: /path/to/storage/datasets
+cache_root: /path/to/storage/cache
+output_root: /path/to/storage/outputs
+log_root: /path/to/storage/logs
 
-model_root: /project/<username>/models
-data_root: /project/<username>/datasets
-cache_root: /project/<username>/cache
-output_root: /project/<username>/outputs
-log_root: /project/<username>/logs
+lingbot_repo: /path/to/JiguangPhantom/third_party/lingbot-vla-v2
+robotwin_repo: /path/to/JiguangPhantom/third_party/RoboTwin
 
-lingbot_repo: /home/<username>/JiguangPhantom/third_party/lingbot-vla-v2
-robotwin_repo: /home/<username>/JiguangPhantom/third_party/RoboTwin
+lingbot_model: /path/to/storage/models/lingbot-vla-v2-6b
+qwen3vl_model: /path/to/storage/models/Qwen3-VL-4B-Instruct
+moge_model: /path/to/storage/models/moge-2-vitb-normal
 
-lingbot_model: /project/<username>/models/lingbot-vla-v2-6b
-qwen3vl_model: /project/<username>/models/Qwen3-VL-4B-Instruct
-moge_model: /project/<username>/models/moge-2-vitb-normal
+robotwin_raw_data: /path/to/storage/datasets/RoboTwin2.0/raw
+robotwin_lerobot_data: /path/to/storage/datasets/RoboTwin2.0/lerobot
 
-robotwin_raw_data: /project/<username>/datasets/RoboTwin2.0/raw
-robotwin_lerobot_data: /project/<username>/datasets/RoboTwin2.0/lerobot
-
-eval_output: /project/<username>/outputs/evaluation
+eval_output: /path/to/storage/outputs/evaluation
