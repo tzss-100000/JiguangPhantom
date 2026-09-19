@@ -15,6 +15,7 @@ SAVE_STEPS="${SAVE_STEPS:-10000}"
 MICRO_BATCH_SIZE="${MICRO_BATCH_SIZE:-1}"
 GRAD_ACCUM="${GRAD_ACCUM:-1}"
 ENABLE_GRAD_CKPT="${ENABLE_GRAD_CKPT:-true}"
+ENABLE_FULL_SHARD="${ENABLE_FULL_SHARD:-true}"
 
 export PATH="${STORAGE_ROOT}/miniconda3/bin:${PATH}"
 eval "$(conda shell.bash hook)"
@@ -47,7 +48,7 @@ BASE_CONFIG="${BASE_CONFIG}" CONFIG_FILE="${CONFIG_FILE}" \
 MODEL_PATH="${MODEL_PATH}" TOKENIZER_PATH="${MODEL_ROOT}/Qwen3-VL-4B-Instruct" \
 TRAIN_LIST="${TRAIN_LIST}" RUN_DIR="${RUN_DIR}" MODEL_ROOT="${MODEL_ROOT}" \
 MAX_STEPS="${MAX_STEPS}" SAVE_STEPS="${SAVE_STEPS}" MICRO_BATCH_SIZE="${MICRO_BATCH_SIZE}" \
-GRAD_ACCUM="${GRAD_ACCUM}" GLOBAL_BATCH_SIZE="${GLOBAL_BATCH_SIZE}" ENABLE_GRAD_CKPT="${ENABLE_GRAD_CKPT}" \
+GRAD_ACCUM="${GRAD_ACCUM}" GLOBAL_BATCH_SIZE="${GLOBAL_BATCH_SIZE}" ENABLE_GRAD_CKPT="${ENABLE_GRAD_CKPT}" ENABLE_FULL_SHARD="${ENABLE_FULL_SHARD}" \
 python - <<'PY'
 import os, yaml
 from copy import deepcopy
@@ -67,6 +68,7 @@ t["global_batch_size"] = int(os.environ["GLOBAL_BATCH_SIZE"])
 t["max_steps"] = int(os.environ["MAX_STEPS"])
 t["save_steps"] = int(os.environ["SAVE_STEPS"])
 t["enable_gradient_checkpointing"] = os.environ["ENABLE_GRAD_CKPT"].lower() == "true"
+t["enable_full_shard"] = os.environ["ENABLE_FULL_SHARD"].lower() == "true"
 
 root = os.environ["MODEL_ROOT"]
 align = t.get("align_params", {})
