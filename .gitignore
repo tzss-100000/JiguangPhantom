@@ -15,9 +15,12 @@ __pycache__/
 venv/
 env/
 conda_env/
+.conda/
 
-# Local path configs
+# Local path / platform configs
 configs/paths.local.yaml
+configs/platforms/*.env
+!configs/platforms/*.example.env
 
 # Models
 models/*
@@ -43,11 +46,19 @@ logs/*
 !logs/.gitkeep
 wandb/
 runs/
+*.log
 
-# Cache
+# Cache / temporary files
 .cache/
 huggingface/
+hf_cache/
+huggingface_cache/
 tmp/
+*.tmp
+
+# Simulation artifacts
+videos/
+recordings/
 
 # Windows / macOS
 Thumbs.db
