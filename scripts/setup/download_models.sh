@@ -4,58 +4,54 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 MODEL_ROOT="${MODEL_ROOT:-${PROJECT_ROOT}/models}"
 
+LINGBOT_REVISION="${LINGBOT_REVISION:-11c703bf6a5c1f45b3b69168482da11fdbba53d7}"
+QWEN_REVISION="${QWEN_REVISION:-ebb281ec70b05090aa6165b016eac8ec08e71b17}"
+MOGE_REVISION="${MOGE_REVISION:-ca5f0e07ff01d3e5a364c1d954ed12ee1814b368}"
+
 mkdir -p "${MODEL_ROOT}"
 
-echo "========================================"
-echo "JiguangPhantom - Model Downloader"
-echo "========================================"
-echo "MODEL_ROOT: ${MODEL_ROOT}"
-echo "========================================"
-
-if ! command -v python >/dev/null 2>&1; then
-    echo "[ERROR] Python is not available."
-    exit 1
-fi
-
 python - <<'PY'
-try:
-    import huggingface_hub
-    print("huggingface_hub available")
-except ImportError as exc:
-    raise SystemExit("huggingface_hub is required") from exc
+import huggingface_hub
+print("huggingface_hub", huggingface_hub.__version__)
 PY
 
-download_model() {
+download_snapshot() {
     local repo_id="$1"
     local local_dir="$2"
-    local revision="${3:-}"
+    local revision="$3"
+    local mode="${4:-full}"
 
     if [ -d "${local_dir}" ] && [ -n "$(ls -A "${local_dir}" 2>/dev/null)" ]; then
-        echo "[SKIP] ${repo_id}: ${local_dir} already exists."
+        echo "[SKIP] ${repo_id}: ${local_dir} already exists"
         return
     fi
 
-    REPO_ID="${repo_id}" LOCAL_DIR="${local_dir}" REVISION="${revision}" python - <<'PY'
+    REPO_ID="${repo_id}" LOCAL_DIR="${local_dir}" REVISION="${revision}" MODE="${mode}" python - <<'PY'
 import os
 from huggingface_hub import snapshot_download
 
-kwargs = {
-    "repo_id": os.environ["REPO_ID"],
-    "local_dir": os.environ["LOCAL_DIR"],
-}
-revision = os.environ.get("REVISION")
-if revision:
-    kwargs["revision"] = revision
-
+kwargs = dict(
+    repo_id=os.environ["REPO_ID"],
+    revision=os.environ["REVISION"],
+    local_dir=os.environ["LOCAL_DIR"],
+)
+if os.environ["MODE"] == "tokenizer":
+    kwargs["allow_patterns"] = [
+        "*.json", "*.txt", "*.jinja", "merges.txt", "vocab.json",
+    ]
 snapshot_download(**kwargs)
 PY
 }
 
-download_model     "robbyant/lingbot-vla-v2-6b"     "${MODEL_ROOT}/lingbot-vla-v2-6b"
+download_snapshot   "robbyant/lingbot-vla-v2-6b"   "${MODEL_ROOT}/lingbot-vla-v2-6b"   "${LINGBOT_REVISION}" full
 
-download_model     "Qwen/Qwen3-VL-4B-Instruct"     "${MODEL_ROOT}/Qwen3-VL-4B-Instruct"
+download_snapshot   "Qwen/Qwen3-VL-4B-Instruct"   "${MODEL_ROOT}/Qwen3-VL-4B-Instruct"   "${QWEN_REVISION}" tokenizer
 
-download_model     "Ruicheng/moge-2-vitb-normal"     "${MODEL_ROOT}/moge-2-vitb-normal"
+download_snapshot   "Ruicheng/moge-2-vitb-normal"   "${MODEL_ROOT}/moge-2-vitb-normal"   "${MOGE_REVISION}" full
 
-echo "[SUCCESS] Model download completed."
-echo "LingBot base weights include the depth and DINO-video teacher files."
+test -f "${MODEL_ROOT}/lingbot-vla-v2-6b/depth/model.pt"
+test -f "${MODEL_ROOT}/lingbot-vla-v2-6b/dino_video/teacher_step_10000.pth"
+test -f "${MODEL_ROOT}/lingbot-vla-v2-6b/dino_video/config.yaml"
+test -f "${MODEL_ROOT}/moge-2-vitb-normal/model.pt"
+
+echo "[SUCCESS] Required model assets are present under ${MODEL_ROOT}"
